@@ -196,6 +196,9 @@ public class Cliente {
                 //Generar varios hilos para cada servicio, asi no hay espera ocupada 
                 List <String> resultados = new ArrayList<>();
                 List<Thread> hilos = new ArrayList<>();
+                synchronized (lock) {
+                    finalizados = 0;
+                }
                 for (int i = 0; i < servicios.size(); i++) {
                     WebTarget s = servicios.get(i);
                     Thread t = new Thread(() -> {
@@ -209,8 +212,20 @@ public class Cliente {
                         }
                     });
                     hilos.add(t);
+                    t.start();
                 }
-                System.out.println("El valor cambiado es: "+resultados.get(0));
+                
+                synchronized (lock) {
+                    if (finalizados < servicios.size()) {
+                        lock.wait(10000); // espera máximo 10 segundos
+                    }
+                }
+
+                if (resultados.isEmpty()) {
+                    System.out.println("No se recibió respuesta de ningún servidor.");
+                } else {
+                    System.out.println("El valor cambiado es: " + resultados.get(0));
+                }
 /*
                 String[] partes = res1.replace("[", "").replace("]", "").replace(" ", "").split(",");
                 int[] valores = new int[partes.length];
