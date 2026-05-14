@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 //@Path("Cliente")
-public class Cliente {
+public class Cliente {RUTA
 
     private Client clienteRest = ClientBuilder.newClient();
     URI uri = UriBuilder.fromUri("http://localhost:8080/procesos/rest/Servicio").build();
@@ -314,7 +314,7 @@ public class Cliente {
          */
         
         try{
-            BufferedReader br = new BufferedReader(new FileReader(RUTA+"/Z/config_server.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(RUTA+"/config_server.txt"));
             String linea;
 			while ((linea = br.readLine()) != null) {
 				if(ipServers == null) {
