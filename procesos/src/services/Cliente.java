@@ -38,6 +38,7 @@ public class Cliente {
     private ArrayList<String> listaEstados = new ArrayList<>();
     private final ArrayList<String> cola = new ArrayList<>();
     private Object lock = new Object();
+    private int finalizados;
     Scanner sc = new Scanner(System.in);
     
     public static void main(String[] args) {
@@ -194,13 +195,23 @@ public class Cliente {
                 System.out.println("[HiloProcesador] Enviando propuesta al servidor y esperando procesos...");
                 //Generar varios hilos para cada servicio, asi no hay espera ocupada 
                 List <String> resultados = new ArrayList<>();
-                String res1=null;
-                for (WebTarget s : servicios) {
-                    res1 = s.path("inicio").queryParam("propuesta", valor).request(MediaType.TEXT_PLAIN).get(String.class);
-                    resultados.add(res1);
+                List<Thread> hilos = new ArrayList<>();
+                for (int i = 0; i < servicios.size(); i++) {
+                    WebTarget s = servicios.get(i);
+                    Thread t = new Thread(() -> {
+                        String res = s.path("inicio").queryParam("propuesta", valor).request(MediaType.TEXT_PLAIN).get(String.class);
+                        synchronized (lock) {
+                            resultados.add(res);
+                            finalizados++;
+                            if (finalizados == servicios.size()) {
+                                lock.notify(); // todos han terminado
+                            }
+                        }
+                    });
+                    hilos.add(t);
                 }
-
-
+                System.out.println("El valor cambiado es: "+resultados.get(0));
+/*
                 String[] partes = res1.replace("[", "").replace("]", "").replace(" ", "").split(",");
                 int[] valores = new int[partes.length];
                 for(int i = 0; i < partes.length; i++) {
@@ -236,7 +247,7 @@ public class Cliente {
 	                	System.out.println("El valor cambiado es: "+escogido);
 	                }
 	                
-                }
+                }*/
 
             } catch (Exception e) {
                 System.err.println("Error al recibir el return del servidor: " + e.getMessage());
