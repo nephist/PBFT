@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 //@Path("Cliente")
-public class Cliente {RUTA
+public class Cliente {
 
     private Client clienteRest = ClientBuilder.newClient();
     URI uri = UriBuilder.fromUri("http://localhost:8080/procesos/rest/Servicio").build();
