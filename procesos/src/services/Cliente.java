@@ -135,11 +135,8 @@ public class Cliente {
 
     public void procesarComando(String comando) {
         if (comando.equals("s")) {
-        	File f = new File(RUTA+"/a.txt");
             //intentamos escribir la ip
             try{
-            	BufferedWriter bw = new BufferedWriter(new FileWriter(RUTA+"/a.txt",true));
-                
             	listaEstados.clear();
 	            String res1;
 	            String partes[],partes0[];
@@ -151,7 +148,7 @@ public class Cliente {
 	                 * 	a continuación los añadiremos a lista de estados
 	                 * 	finalmente se ordenan
 	                 */
-	            	res1 = target.path("estado").request(MediaType.TEXT_PLAIN).get(String.class);
+	            	res1 = servicios.get(i).path("estado").request(MediaType.TEXT_PLAIN).get(String.class);
 	                partes0 = res1.split(";");
 	                for(int j=0;j<partes0.length;j++)
 	                {
@@ -178,7 +175,6 @@ public class Cliente {
 	             * */
 	            for (String s: listaEstados)
 	            {
-	            	bw.write(s);
 	            	
 	            	partes = s.split("/");
 	                System.out.printf(" %d\t| %s\t| %s\t| %s\t \n", Integer.parseInt(partes[0]), partes[1], partes[2], partes[3]);
