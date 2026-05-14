@@ -248,6 +248,7 @@ public class Servicio {
 				} else {
 					proc.setError(true);
 				}
+				System.out.println("cambio fallo en"+pid + "soy "+id);
 			}
 		}
 		return "hecho";
