@@ -25,7 +25,7 @@ import java.io.IOException;
 @Path("Servicio")
 public class Servicio {
 	
-	//Esto no existirá se hara con el .txt en Servicio
+	//Esto no existirï¿½ se hara con el .txt en Servicio
 	private ArrayList<Proceso> misProcesos = new ArrayList<Proceso>();
 	private Client clienteRest = ClientBuilder.newClient();
 	
@@ -124,7 +124,7 @@ public class Servicio {
 	            candadoConsenso.wait(5000);
 	        } catch (InterruptedException e) { e.printStackTrace(); }
 	    }
-        return valoresRecibidos.toString(); // Enviará algo como "[10, 10]"
+        return valoresRecibidos.toString(); // Enviarï¿½ algo como "[10, 10]"
     }
 	
 	
@@ -191,21 +191,17 @@ public class Servicio {
 		 */
 		for (WebTarget s : Servicios) {
 	        if(!propagado) {
-	            s.path("confirmacion")
-	                .queryParam("comision", comision)
-	                .queryParam("pid", pid)
-	                .queryParam("propagado", true)
-	                .request().async().get();
+	            s.path("confirmacion").queryParam("comision", comision).queryParam("pid", pid).queryParam("propagado", true).request().async().get();
 	        }
 	    }
 		synchronized(candadoConsenso) {
-	        // Guardamos el valor que nos acaba de llegar por el túnel REST
+	        // Guardamos el valor que nos acaba de llegar por el tï¿½nel REST
 	        valoresRecibidos.add(comision);
 	        procesosFinalizados++;
 
 	        // Si ya han llamado todos los procesos que este servidor gestiona
 	        if (procesosFinalizados == misProcesos.size()) {
-	            candadoConsenso.notify(); // Despertamos al hilo que está esperando para hacer el return
+	            candadoConsenso.notify(); // Despertamos al hilo que estï¿½ esperando para hacer el return
 	        }
 	    }
 	}
@@ -215,7 +211,7 @@ public class Servicio {
     @Path("estado")
     @Produces(MediaType.TEXT_PLAIN)
 	public String estado() {
-		/*	por cada proceso que nos envía una string del tipo "2/1/1,1,8/false"
+		/*	por cada proceso que nos envï¿½a una string del tipo "2/1/1,1,8/false"
 		 * 	los separamos por ";"
 		 * 		EJEMPLO:
 		 * 			3 procesos
@@ -241,6 +237,7 @@ public class Servicio {
 	@GET
     @Path("fallo")
 	public String fallo(@QueryParam("pid") int pid) {
+		boolean hecho=false;
 		for (Proceso proc : misProcesos)
 		{
 			if (proc.getIdProceso()==pid)

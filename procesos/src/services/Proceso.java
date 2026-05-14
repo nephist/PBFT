@@ -18,7 +18,7 @@ public class Proceso {
 	private boolean error;
 	WebTarget Server;
 	private Client clienteRest = ClientBuilder.newClient();
-	URI uri=UriBuilder.fromUri("http://localhost:8080/procesos/rest/Servicio").build(); // Cada proceso tendrá su servidor
+	URI uri=UriBuilder.fromUri("http://localhost:8080/procesos/rest/Servicio").build(); // Cada proceso tendrï¿½ su servidor
 	int compromisos[]; 
 	int comisiones[];
 	boolean compromiso;
@@ -54,7 +54,7 @@ public class Proceso {
 	
 	
 	public synchronized void propuesta (int variable) {
-		//Todos deberían ya estár aqui
+		//Todos deberï¿½an ya estï¿½r aqui
 		procesosCompromiso=0;
 		procesosComision=0;
 		compromiso=false;
@@ -137,9 +137,9 @@ public class Proceso {
 					//NO
 					
 	public synchronized void comision(int compromiso , int pid) {
-		//Les envia al resto el número que el tiene
-		//Y ellos nos lo envián a nosotros
-		//Vemos que número tiene mayoría y lo pasamos a comisiones
+		//Les envia al resto el nï¿½mero que el tiene
+		//Y ellos nos lo enviï¿½n a nosotros
+		//Vemos que nï¿½mero tiene mayorï¿½a y lo pasamos a comisiones
 
 	    comisiones[pid] = compromiso;
 	    int quorum = 0;
@@ -178,7 +178,7 @@ public class Proceso {
 	
 	/*
 		public void comision(int consenso) {
-			//Una vez hemos decidido que "consenso" es nuestro número se lo decimos al resto y actualizamos nuestro valor
+			//Una vez hemos decidido que "consenso" es nuestro nï¿½mero se lo decimos al resto y actualizamos nuestro valor
 			//Y ellos a nosotros
 			int actualizado = 2;
 			confirmacion(actualizado);
@@ -194,7 +194,7 @@ public class Proceso {
 		 * 		valor					"1"
 		 * 		lista de compromisos 	"1,1,1,8"
 		 * 		error 					"false"
-		 * 	TODAS SEPARADAS POR "/" EN ESTE EJEMPLO QUEDARÍA ALGO ASÍ "2/1/1,1,1,8/false" 
+		 * 	TODAS SEPARADAS POR "/" EN ESTE EJEMPLO QUEDARï¿½A ALGO ASï¿½ "2/1/1,1,1,8/false" 
 		 * */
 		String aux, aux2, sError;
 		String sCompromisos=null, sComisiones=null;

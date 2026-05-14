@@ -40,6 +40,7 @@ public class Cliente {
     private Object lock = new Object();
     private int finalizados;
     Scanner sc = new Scanner(System.in);
+    private String[] listaProcesos;
     
     public static void main(String[] args) {
     	Scanner sc = new Scanner(System.in);
@@ -270,8 +271,26 @@ public class Cliente {
 
         } else if (comando.startsWith("f")) {
             String numero = comando.substring(1);
+            String aux[];
             int valor = Integer.parseInt(numero);
-            String res1 = target.path("fallo").queryParam("pid", valor).request(MediaType.TEXT_PLAIN).get(String.class);
+            int cont=0;
+            for(WebTarget s : servicios)
+            {
+            	aux=listaProcesos[cont].split(",");
+            	for(int j=0; j<aux.length; j++) 
+            	{
+            		if (Integer.parseInt(aux[j])==valor)
+            		{
+            			String res1 = s.path("fallo").queryParam("pid", valor).request(MediaType.TEXT_PLAIN).get(String.class);
+            			break;
+            		}
+            		else { continue; }
+            	}
+            	cont++;
+            }
+            
+            
+            
         }
     }
     public void crearConfiguración() throws IOException{
@@ -325,7 +344,7 @@ public class Cliente {
         *       [ej] : 1,4,7;2,5,8;3,6,9
         */
 
-	    String[] listaProcesos = new String[servers];
+	    listaProcesos = new String[servers];
         String cadenaProcesos=null;
         for(int i = 0; i < procesos; i++) {
             if(listaProcesos[i%servers] == null) {
