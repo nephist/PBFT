@@ -34,6 +34,7 @@ public class Cliente {
     
     int servers, procesos, cont=0;
     String RUTA = System.getProperty("user.home");
+    //RUTA= RUTA+"/Z";
     
     private ArrayList<String> listaEstados = new ArrayList<>();
     private final ArrayList<String> cola = new ArrayList<>();
@@ -313,7 +314,7 @@ public class Cliente {
          */
         
         try{
-            BufferedReader br = new BufferedReader(new FileReader(RUTA+"/config_server.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(RUTA+"/Z/config_server.txt"));
             String linea;
 			while ((linea = br.readLine()) != null) {
 				if(ipServers == null) {
