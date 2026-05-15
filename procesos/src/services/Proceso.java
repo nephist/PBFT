@@ -54,7 +54,7 @@ public class Proceso {
 	
 	
 	public synchronized void propuesta (int variable) {
-		//Todos deber�an ya est�r aqui
+		//Todos deberian ya estar aqui
 		procesosCompromiso=0;
 		procesosComision=0;
 		compromiso=false;
@@ -64,11 +64,7 @@ public class Proceso {
 			compromisos[i]=0;
 			comisiones[i]=0;
 		}
-		
-		
-		
 		//Les llega lo del Cliente
-		
 		if (error==true ) {
 			//Si hay error manda otra cosa
 			int random;
@@ -131,15 +127,10 @@ public class Proceso {
 		}
 	}
 		
-				//EN la lista hay numero para el queorum?
-					//SI
-						//Manda mensaje al server para pasar a la siguiente fase
-					//NO
-					
 	public synchronized void comision(int compromiso , int pid) {
-		//Les envia al resto el n�mero que el tiene
-		//Y ellos nos lo envi�n a nosotros
-		//Vemos que n�mero tiene mayor�a y lo pasamos a comisiones
+		//Les envia al resto el numero que el tiene
+		//Y ellos nos lo envian a nosotros
+		//Vemos que numero tiene mayoria y lo pasamos a comisiones
 
 	    comisiones[pid] = compromiso;
 	    int quorum = 0;
@@ -171,20 +162,7 @@ public class Proceso {
 			    }
 		    }
 	    }
-		
-		//comision(mayoria);
-		
 	}
-	
-	/*
-		public void comision(int consenso) {
-			//Una vez hemos decidido que "consenso" es nuestro n�mero se lo decimos al resto y actualizamos nuestro valor
-			//Y ellos a nosotros
-			int actualizado = 2;
-			confirmacion(actualizado);
-		}
-	*/
-	
 	public synchronized void confirmacion(int actualizado) {
 		
 	}
@@ -194,30 +172,26 @@ public class Proceso {
 		 * 		valor					"1"
 		 * 		lista de compromisos 	"1,1,1,8"
 		 * 		error 					"false"
-		 * 	TODAS SEPARADAS POR "/" EN ESTE EJEMPLO QUEDAR�A ALGO AS� "2/1/1,1,1,8/false" 
+		 * 	TODAS SEPARADAS POR "/" EN ESTE EJEMPLO QUEDARiA ALGO ASi "2/1/1,1,1,8/false" 
 		 * */
-		String aux, aux2, sError;
-		String sCompromisos=null, sComisiones=null;
+		String aux, sError;
+		String sCompromisos=null;
 		for(int i =0; i<numProcesos;i++)
 		{
 			aux=compromisos[i]+"";
-			aux2=comisiones[i]+"";
 			if(sCompromisos == null) {
                 sCompromisos= aux;
-                sComisiones=aux2;
             } else {
                 sCompromisos=sCompromisos+","+aux;
-                sComisiones=sComisiones+", "+aux2;
             }
 		}
 		if (error)				//si error es true
 		{
-			sError="true";
+			sError="true ";
 		}else
 		{
 			sError = "false";
 		}
-		sError=sError+", "+sComisiones;
 		return (pid+"/"+valor+"/"+sCompromisos+"/"+sError);
 
 	}

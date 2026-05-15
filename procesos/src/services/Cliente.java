@@ -34,14 +34,13 @@ public class Cliente {
     
     int servers, procesos, cont=0;
     String RUTA = System.getProperty("user.home");
-    //RUTA= RUTA+"/Z";
     
     private ArrayList<String> listaEstados = new ArrayList<>();
     private final ArrayList<String> cola = new ArrayList<>();
     private Object lock = new Object();
+    private String[] listaProcesos;
     private int finalizados;
     Scanner sc = new Scanner(System.in);
-    private String[] listaProcesos;
     
     public static void main(String[] args) {
     	Scanner sc = new Scanner(System.in);
@@ -55,13 +54,10 @@ public class Cliente {
     }
 
     public void iniciar() throws IOException {
-    	//antes que nada hacemos una comprobacion
     	crearConfiguración();
-    	
         Thread hiloTeclado = new Thread(() -> {
             menuInteractivo();
         });
-
         Thread hiloProcesador = new Thread(() -> {
             while (true) {
                 String comando = null;
@@ -94,7 +90,6 @@ public class Cliente {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         System.out.println("Cliente finalizado.");
     }
 
@@ -136,7 +131,6 @@ public class Cliente {
 
     public void procesarComando(String comando) {
         if (comando.equals("s")) {
-            //intentamos escribir la ip
             try{
             	listaEstados.clear();
 	            String res1;
@@ -149,7 +143,7 @@ public class Cliente {
 	                 * 	a continuación los añadiremos a lista de estados
 	                 * 	finalmente se ordenan
 	                 */
-	            	res1 = servicios.get(i).path("estado").request(MediaType.TEXT_PLAIN).get(String.class);
+	            	res1 = target.path("estado").request(MediaType.TEXT_PLAIN).get(String.class);
 	                partes0 = res1.split(";");
 	                for(int j=0;j<partes0.length;j++)
 	                {
@@ -166,21 +160,20 @@ public class Cliente {
 	                );
 	                return Integer.compare(aux1, aux2);
 	            });
-	            System.out.printf("---------------------------------");
-	            System.out.printf("             PBFT                ");
-	            System.out.printf("---------------------------------");
-	            System.out.println(" id\t| var\t| compromisos\t| error\t |");
+	            System.out.printf("---------------------------------------\n");
+	            System.out.printf("                 PBFT                   \n");
+	            System.out.printf(" ----------------------------------------\n");
+	            System.out.println(" |  id\t| var\t| compromisos\t| error |");
 	            /*	AQUI vamos a pillar por separado cada string ordenada de la  listaEstados
 	             * 	"0/1/1,1,8/false"
 	             * 	separamos toda la info
 	             * */
 	            for (String s: listaEstados)
 	            {
-	            	
 	            	partes = s.split("/");
-	                System.out.printf(" %d\t| %s\t| %s\t| %s\t \n", Integer.parseInt(partes[0]), partes[1], partes[2], partes[3]);
+	                System.out.printf(" |  %d\t| %s\t| %s\t| %s | \n", Integer.parseInt(partes[0]), partes[1], partes[2], partes[3]);
 	            }
-	            System.out.println("---------------------------------");
+	            System.out.println(" ----------------------------------------");
             } catch (Exception e) {
                 e.printStackTrace();
             }	
@@ -205,7 +198,7 @@ public class Cliente {
                             resultados.add(res);
                             finalizados++;
                             if (finalizados == servicios.size()) {
-                                lock.notify(); // todos han terminado
+                                lock.notify(); // todos terminan
                             }
                         }
                     });
@@ -215,59 +208,49 @@ public class Cliente {
                 
                 synchronized (lock) {
                     if (finalizados < servicios.size()) {
-                        lock.wait(10000); // espera máximo 10 segundos
+                        lock.wait(10000); // esperamos 10 segundos
                     }
                 }
-
                 if (resultados.isEmpty()) {
                     System.out.println("No se recibió respuesta de ningún servidor.");
                 } else {
-                    System.out.println("El valor cambiado es: " + resultados.get(0));
+                    List<Integer> listaResultados = new ArrayList<>();
+                    for (String res1 : resultados) {
+                        String[] partes = res1.replace("[", "").replace("]", "").replace(" ", "").split(",");
+                        for (String p : partes) {
+                            listaResultados.add(Integer.parseInt(p));
+                        }
+                    }
+                    if (listaResultados.get(0) == -1) {
+                        System.out.println("No ha habido consenso");
+                    } else {
+                        int escogido = 0;
+                        for (int i = 0; i < listaResultados.size(); i++) {
+                            int quorum = 0;
+                            for (int j = 0; j < listaResultados.size(); j++) {
+                                if (listaResultados.get(i).equals(listaResultados.get(j))) {
+                                    quorum++;
+                                }
+                                if (quorum > listaResultados.size() / 2) {
+                                    escogido = listaResultados.get(i);
+                                    break;
+                                }
+                            }
+                            if (escogido != 0) break;
+                        }
+                        if (escogido == 0) {
+                            System.out.println("No ha habido consenso");
+                        } else {
+                            System.out.println("El valor cambiado es: " + escogido);
+                        }
+                    }
                 }
-/*
-                String[] partes = res1.replace("[", "").replace("]", "").replace(" ", "").split(",");
-                int[] valores = new int[partes.length];
-                for(int i = 0; i < partes.length; i++) {
-                    valores[i] = Integer.parseInt(partes[i]);
-                }
-                if(valores[0]==-1)
-                {
-                	System.out.println("No ha habido consenso");
-                }
-                else {
-                	int escogido=0;
-	                for(int i=0; i<valores.length; i++)
-	                {
-	                	int quorum=0;
-	                	for(int j=0; j<valores.length; j++)
-	                	{
-	                		if(valores[i]==valores[j]) {
-	                			quorum++;
-	                		}
-	                		if(quorum>(valores.length)/2)
-	                		{
-	                			escogido= valores[i];
-	                			break;
-	                		}
-	                	}
-	                }
-	                if(escogido==0)
-	                {
-	                	System.out.println("No ha habido consenso, me da a mi q es imposible a estas alturas");
-	                }
-	                else
-	                {
-	                	System.out.println("El valor cambiado es: "+escogido);
-	                }
-	                
-                }*/
-
             } catch (Exception e) {
                 System.err.println("Error al recibir el return del servidor: " + e.getMessage());
             }
 
         } else if (comando.startsWith("f")) {
-            String numero = comando.substring(1);
+        	String numero = comando.substring(1);
             String aux[];
             int valor = Integer.parseInt(numero);
             int cont=0;
@@ -279,15 +262,13 @@ public class Cliente {
             		if (Integer.parseInt(aux[j])==valor)
             		{
             			String res1 = s.path("fallo").queryParam("pid", valor).request(MediaType.TEXT_PLAIN).get(String.class);
+                        System.out.println("Parametro error del proceso " + valor +": "+res1 );
             			break;
             		}
             		else { continue; }
             	}
             	cont++;
             }
-            
-            
-            
         }
     }
     public void crearConfiguración() throws IOException{
@@ -297,16 +278,22 @@ public class Cliente {
         System.out.println("Antes de comenzar por favor indique los siguientes datos");
 
         System.out.print("Número de procesos: ");
-        while (!sc.hasNextInt()) {
-            System.out.println("Introduce un número válido:");
+        while (true) {
+            if (sc.hasNextInt()) {
+                procesos = sc.nextInt();
+                if (procesos > 0) {
+                    sc.nextLine();
+                    break;
+                } else {
+                    System.out.println("Introduce un número mayor que 0:");
+                }
+            } else {
+                System.out.println("Introduce un número válido:");
+            }
+            sc.nextLine(); 
         }
-        procesos = sc.nextInt();
-        sc.nextLine();
 
         String ip = InetAddress.getLocalHost().getHostAddress();
-        
-        System.out.println("IP Local: " + ip);
-        
          /*	
          * leemos del fichero config_server
          * 	donde aparecen las ip de todos los servicios
@@ -341,7 +328,7 @@ public class Cliente {
         *       [ej] : 1,4,7;2,5,8;3,6,9
         */
 
-	    listaProcesos = new String[servers];
+	    this.listaProcesos = new String[servers];
         String cadenaProcesos=null;
         for(int i = 0; i < procesos; i++) {
             if(listaProcesos[i%servers] == null) {
@@ -362,7 +349,7 @@ public class Cliente {
          * 	llamamos a los servers y le mandamos
          * 		string ips separadas por "," ejemplo: 127.0.0.1, 127.0.0.2, 127.0.0.3
          * 
-         * */
+         */
         for (int i = 0; i < servicios.size(); i++) {
         	String aux=ips.get(i)+"/"+i;
         	WebTarget serverTarget = servicios.get(i);

@@ -56,14 +56,14 @@ public class Servicio {
 		catch(Exception e) {
 			e.printStackTrace();
 		}
-		
     }
 	
 	@GET
     @Path("configuracion")
 	public synchronized void configuracion(@QueryParam("ips") String ipServers, @QueryParam("cadenaProcesos") String cadenaProcesos, @QueryParam("totalProcesos") int totalProcesos,  @QueryParam("ipServicio") String ipServicio) {
 		String[] partes0, partes, partes1, partes2;	
-		
+		misProcesos.clear();   
+	    Servicios.clear();
 		/*
 		 * 	con total procesos pasamos todos los procesos
 		 * 	con ipServers pillamos las ips que van concatenadas y las metemos en el array partes
@@ -83,7 +83,6 @@ public class Servicio {
 			if(i!=id) {
 				int idServer=i;
 				Servicios.add(clienteRest.target("http://"+partes[i]+":8080/procesos/rest/Servicio"));		//uris para comunicarse con otros servicios
-				System.out.println("id["+idServer+"] ip:"+partes[i]);
 			}
 		}		
 	    
@@ -99,7 +98,6 @@ public class Servicio {
 		
 	    //creamos nuestros procesos
 		for (int i=0; i<numProcesos; i++) {
-			System.out.println("proceso "+partes2[i]+"creado");
 			misProcesos.add(new Proceso(Integer.parseInt(partes2[i]), false, uriServer, totalProcesos)); 												//se lo enviamos a los procesos
 		}
 	}
@@ -145,7 +143,6 @@ public class Servicio {
 			if(propagado)	//es basicamente comprobar si la uri del web target del for es distinta a la uri del servicio
 			{
 				s.path("compromiso").queryParam("propuesta", vCompromiso).queryParam("pid", pid).queryParam("propagado", false).request().async().get();
-				System.out.println("mando compromiso con id"+pid);
 			}	 
 		}
 	}
@@ -175,20 +172,6 @@ public class Servicio {
     @Path("confirmacion")
     @Produces(MediaType.TEXT_PLAIN)
 	public void confirmacion(@QueryParam("comision") int comision, @QueryParam("pid") int pid, @QueryParam("propagado") boolean propagado) {
-		//Creo que es asi
-		//Hay dos opciones
-		//Se lo envia todo uno, buscan la url del server central y le envia la info
-		
-		//Server central:
-		/*
-		  for()
-		  	Comprueba que no haya 0 si no los hoy lo madanda, si lo hay es que falta un server por mandar toda su info
-		 
-		
-		//Si no hay central
-		
-		  Hacemos como los procesos le hacian a los servicios, le envian al cliente lo que tienen, y el cliente mira si hay quorum cada vez
-		 */
 		for (WebTarget s : Servicios) {
 	        if(!propagado) {
 	            s.path("confirmacion").queryParam("comision", comision).queryParam("pid", pid).queryParam("propagado", true).request().async().get();
@@ -198,7 +181,6 @@ public class Servicio {
 	        // Guardamos el valor que nos acaba de llegar por el t�nel REST
 	        valoresRecibidos.add(comision);
 	        procesosFinalizados++;
-
 	        // Si ya han llamado todos los procesos que este servidor gestiona
 	        if (procesosFinalizados == misProcesos.size()) {
 	            candadoConsenso.notify(); // Despertamos al hilo que est� esperando para hacer el return
@@ -228,16 +210,13 @@ public class Servicio {
                 sEstado=sEstado+";"+aux;
             }
 		}
-		System.out.println();
-		System.out.println(sEstado);
-		System.out.println();
 		return sEstado;
     }
 
 	@GET
     @Path("fallo")
 	public String fallo(@QueryParam("pid") int pid) {
-		boolean hecho=false;
+		String resultado="";
 		for (Proceso proc : misProcesos)
 		{
 			if (proc.getIdProceso()==pid)
@@ -245,12 +224,13 @@ public class Servicio {
 				if(proc.getError())
 				{
 					proc.setError(false);
+					resultado="false";
 				} else {
 					proc.setError(true);
+					resultado="true";
 				}
-				System.out.println("cambio fallo en"+pid + "soy "+id);
 			}
 		}
-		return "hecho";
+		return resultado;
 	}
 }
